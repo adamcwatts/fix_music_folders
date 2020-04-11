@@ -49,40 +49,39 @@ def cover_rename(base_dir, jpg_files):
                 print(f'File Not Found!! : {bad_image}')
                 continue
 
-# base_dir = [f for f in os.listdir(r'D:\FileHistory\adamc\ADAMSPC\Data\F') if f.is_dir()]
 
-artist_list = [f.path for f in os.scandir(r'D:\FileHistory\adamc\ADAMSPC\Data\F\test_genre') if f.is_dir()]
+genre_list = [f.path for f in os.scandir(r'D:\FileHistory\adamc\ADAMSPC\Data\Fake_Drive') if f.is_dir()]
+for genre in genre_list:
+    artist_list = [f.path for f in os.scandir(genre) if f.is_dir()]
+    for artist in artist_list:
+        album_list = [f.path for f in os.scandir(artist) if f.is_dir()]
+        for album in album_list:
+            album_cover_flag = False
+            disc_flag = False
 
-for artist in artist_list:
-    album_list = [f.path for f in os.scandir(artist) if f.is_dir()]
-    for album in album_list:
-        album_cover_flag = False
-        disc_flag = False
+            # jpg_file = [file for file in os.listdir(album) if ('cover' and 'jpg') in file]
+            jpg_file = jpg_search(album)
+            disc_list = [f.path for f in os.scandir(album) if f.is_dir()]
+            disc_folders = [disc for disc in disc_list if ('cd' or 'disc') in disc.lower()]
 
-        # jpg_file = [file for file in os.listdir(album) if ('cover' and 'jpg') in file]
-        jpg_file = jpg_search(album)
-        disc_list = [f.path for f in os.scandir(album) if f.is_dir()]
-        disc_folders = [disc for disc in disc_list if ('cd' or 'disc') in disc.lower()]
+            if len(jpg_file) > 0:
+                album_cover_flag = True
 
-        if len(jpg_file) > 0:
-            album_cover_flag = True
+            if len(disc_folders) > 0:
+                disc_flag = True
 
-        if len(disc_folders) > 0:
-            disc_flag = True
+            if album_cover_flag:
+                cover_rename(album, jpg_file)
 
-        if album_cover_flag:
-            cover_rename(album, jpg_file)
+            if disc_flag:
+                for disc in disc_folders:
+                    nested_album_flag = False
 
-        if disc_flag:
-            for disc in disc_folders:
-                nested_album_flag = False
+                    album_and_disc = os.path.join(album, disc)
+                    jpg_in_disc = jpg_search(album_and_disc)
 
-                album_and_disc = os.path.join(album, disc)
-                jpg_in_disc = jpg_search(album_and_disc)
+                    if len(jpg_in_disc) > 0:
+                        nested_album_flag = True
 
-                if len(jpg_in_disc) > 0:
-                    nested_album_flag = True
-
-                if nested_album_flag:
-                    cover_rename(album_and_disc, jpg_in_disc)
-                print(album)
+                    if nested_album_flag:
+                        cover_rename(album_and_disc, jpg_in_disc)
